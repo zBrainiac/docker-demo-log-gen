@@ -1,0 +1,32 @@
+version: '3.8'
+
+networks:
+  my-proxy-net:
+    name: ssb_csp-ce-net
+
+volumes:
+  log_data:
+
+services:
+  log-gen:
+    image: brainiac/multiarch-log-gen:0.1.1
+    container_name: log-gen
+    volumes:
+      - ./log_data:/var/log/
+    entrypoint: flog -f json -l -t log -o /var/log/generated.log -w
+    networks:
+      - my-proxy-net
+    labels:
+      org.label-schema.group: "test-driver"
+
+  kcat:
+    image: brainiac/multiarch-kcat:0.1.1
+    container_name: kcat
+    volumes:
+      - ./log_data:/var/log/
+    entrypoint: ["./opt/tail-f_2_topic.sh"]
+    networks:
+      - my-proxy-net
+    labels:
+      org.label-schema.group: "test-driver" 
+
